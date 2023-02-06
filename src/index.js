@@ -1,58 +1,57 @@
-const columns = ['name', 'count', 'price', 'a'];
+const columns = ['name', 'count', 'price'];
 const data = [
-    {name: 'Хлеб', count: 12, price: 14.99, a: 1},
-    {name: 'Молоко', count: 3, price: 3.2, a: 2},
-    {name: 'Сыр', count: 1, price: 10, a: 5.5},
-    {name: 'Вода', count: 2, price: 5.5, a: 111},
+    {name: 'Хлеб', count: 12, price: 14.99},
+    {name: 'Молоко', count: 3, price: 3.2},
+    {name: 'Сыр', count: 1, price: 10},
+    {name: 'Вода', count: 2, price: 5.5},
 ];
 
 function createTextTable(columns, data) {
     if ((!columns || (columns && !columns.length)) || 
       (!data || (data && !data.length))) return null;
 
-    function getMaxCellLength() {
+    function getMaxCellLength() { // поиск максимального элемента(его длины) в каждой колонке
         const maxCellLengthByData = {};
 
-        data.forEach(rowData => {
-            columns.forEach(columnKey => {
-                if (rowData[columnKey]) {
-                    const rowDataLength = rowData[columnKey].toString().length;
-        
-                    if (!maxCellLengthByData[columnKey] || rowDataLength > maxCellLengthByData[columnKey]) {
-                        maxCellLengthByData[columnKey] = rowDataLength;
-                    }
-                }
+        columns.forEach(columnName => {
+            const rowWithMaxValueLengthByColumnName = data.reduce((max, current) => {
+                return max[columnName] && current[columnName] ?
+                    (max[columnName].toString().length > current[columnName].toString().length ? max : current) :
+                    {};
             });
+
+            if (rowWithMaxValueLengthByColumnName[columnName]) {
+                maxCellLengthByData[columnName] = rowWithMaxValueLengthByColumnName[columnName].toString().length;
+            }
         });
 
-        return maxCellLengthByData;
+        return maxCellLengthByData; // максимальное значение символов по колонкам
     }
 
-    function addCellExtraSpaces(cellData, numOfSpace, isAddToRight) {
-        if (isAddToRight) cellData = " " + cellData + " ".repeat(numOfSpace);
-        else cellData = " ".repeat(numOfSpace) + cellData + " ";
-
-        return cellData;
+    function addSpaces(cellData, numOfSpace, isAddToRight) { // заполнение пробелами слева, справа
+        if (isAddToRight) return " " + cellData + " ".repeat(numOfSpace);
+        
+        return " ".repeat(numOfSpace) + cellData + " ";
     }
 
-    function getCommonSeparator() {
-        const clmnLength = columns.length;
-        const cellSeparatorNums = clmnLength + 1;
-        const additionalSpacesNumForCells = clmnLength * 2;
-        const maxDataRowLength = Object.values(maxCellLengthByData).reduce((v, r) => r + v, 0);
-        const separatorLength = cellSeparatorNums + additionalSpacesNumForCells + maxDataRowLength;
+    function getCommonSeparator(maxLengthValuesByColumns) { //рисование горизонтальной линии
+        const clmnLength = maxLengthValuesByColumns.length;
+        const cellSeparatorNums = clmnLength + 1; //кол-во разделений между колонками
+        const additionalSpacesNumForCells = clmnLength * 2; //кол-во пробелов во всех колонках
+        const maxDataRowLength = maxLengthValuesByColumns.reduce((v, r) => r + v, 0); //макс длина, занимающая элементами в колонках
+        const separatorLength = cellSeparatorNums + additionalSpacesNumForCells + maxDataRowLength; //длина вся, вкл длину эл+пробелы+линии
 
-        return '\u2500'.repeat(separatorLength).split('');
+        return '\u2500'.repeat(separatorLength).split(''); 
     }
 
-    function addRowSeparator(separatorType) {
+    function addRowSeparator(commonSeparator, maxColumnLengthByValues, separatorType) {
         const separator = commonSeparator;
         const separatorLength = commonSeparator.length;
         
         switch(separatorType) {
             case 'top':
-                separator[0] = '\u250c';
-                separator[separatorLength - 1] = '\u2510';
+                separator[0] = '\u250c';  //start symbol
+                separator[separatorLength - 1] = '\u2510'; // end symbol
                 break;
             case 'middle':
                 separator[0] = '\u251c';
@@ -69,17 +68,17 @@ function createTextTable(columns, data) {
         for (let i = 0; i < columns.length - 1; i++) {
             switch(separatorType) {
                 case 'top':
-                    separator[start + maxLengthValues[i] + 3] = '\u252c';
+                    separator[start + maxColumnLengthByValues[i] + 3] = '\u252c'; //форм-е эл-тов табл по вертикали
                     break;
                 case 'middle':
-                    separator[start + maxLengthValues[i] + 3] = '\u253c';
+                    separator[start + maxColumnLengthByValues[i] + 3] = '\u253c';
                     break;
                 case 'bottom':
-                    separator[start + maxLengthValues[i] + 3] = '\u2534';
+                    separator[start + maxColumnLengthByValues[i] + 3] = '\u2534';
                     break;
             }
-            
-            start += maxLengthValues[i] + 3;
+
+            start += maxColumnLengthByValues[i] + 3;
         }
 
         return separator.join('');
@@ -91,41 +90,42 @@ function createTextTable(columns, data) {
 
     const maxCellLengthByData = getMaxCellLength(data);
     const maxLengthValues = Object.values(maxCellLengthByData);
-    const commonSeparator = getCommonSeparator();
+    const dataExistsColumns = Object.keys(maxCellLengthByData);
+    const commonSeparator = getCommonSeparator(maxLengthValues);
     const table = [];
     let row = "";
 
     data.forEach((rowData, rowIndx) => {
         if (rowIndx === 0) {
-            table.push(addRowSeparator('top'));
+            table.push(addRowSeparator(commonSeparator, maxLengthValues, 'top'));
         }
 
-        columns.forEach((columnName, columnIndx) => {
+        dataExistsColumns.forEach((columnName, columnIndx) => {
             let cellData = rowData[columnName];
 
             if (cellData) {
-                cellData = addCellExtraSpaces(
-                    cellData, 
-                    (maxCellLengthByData[columnName] - cellData.toString().length + 1), 
+                cellData = addSpaces(
+                    cellData,
+                    (maxCellLengthByData[columnName] - cellData.toString().length + 1),
                     (typeof cellData === 'string')
                 );
             }
             else {
-                cellData = addCellExtraSpaces("", (maxCellLengthByData[columnName] + 1));
+                cellData = addSpaces("", (maxCellLengthByData[columnName] + 1));
             }
 
             cellData = addCellSeparator(cellData, columnIndx);
-            
+
             row += cellData;
         });
 
         table.push(row);
 
         if (rowIndx !== data.length - 1) {
-            table.push(addRowSeparator('middle'));
+            table.push(addRowSeparator(commonSeparator, maxLengthValues, 'middle'));
         }
         else if (rowIndx === data.length - 1) {
-            table.push(addRowSeparator('bottom'));
+            table.push(addRowSeparator(commonSeparator, maxLengthValues, 'bottom'));
         }
 
         row = "";
