@@ -24,17 +24,15 @@ const data = [
     {name: 'Абуз', count: 22, price:  35.5, sklad: 3},
     {name: 'Дыня', price:  35},
 ];
-// console.log(data);
-
-// определяем максимальную длинну столбцов + 2 пробела
+ 
 let str='';
 // получаем макс длинну  столбцов
 function getLegth(arrData, columns){
-    // кладем в массив длинну столбцов
+    // записываем в массив длинну столбцов
     let arrLeng = [];
     // заполняем массив длинной наименований колонок
     columns.map(item => arrLeng.push(item.length));
-    // сравниваем с длинной в таблице и перезаписываем если значения их превышает
+    // сравниваем с длинной в основной таблице и перезаписываем если значения их превышает
     arrData.map( (item) => {
         let i=0;
         for (let key in item ) {
@@ -48,7 +46,7 @@ function getLegth(arrData, columns){
     return arrLeng;
 };
 
-// запускаем функцию вычисленний длинн столбцов
+// запускаем функцию вычисленния длинны столбцов
 let longEveryColums = getLegth(data,columns);
 // console.log( longEveryColums);
 
@@ -68,12 +66,12 @@ const specArr= {
     'space' : ' ',
 };
 
-// деструктуризация, но можно было сразу писать в переменную
+// деструктуризация 
 let {specHoriz, specVert, specLeftMidl, specRightMidl, specLeftTop,
    specRightTop, specLeftBottom, specRightBottom, specTopMidl, specBottomMidl,
    specAccros, space} = specArr;
 
-// отрисовка части таблицы - верх , низ или середину таблицы
+// отрисовка части таблицы - верх , низ или середина  
 function headerAndTopTable(arr, left, right, horiz, specHor){
     let str='';
     // рисуем верх
@@ -100,7 +98,7 @@ function headerAndTopTable(arr, left, right, horiz, specHor){
  return str;  
 };
 
-// рендернинг наименование таблицы
+// рендеринг шапки таблицы с наименованием (не было в ДЗ)
 function nameTable(columns) {
     columns.map((item, ind)=>{
         let cauntSpaces = longEveryColums[ind] - item.length;
@@ -110,8 +108,7 @@ function nameTable(columns) {
     return str;
 }
 
-// рендернинг отрисоки таблицы
-
+// рендернинг основной  таблицы
 function createTextTable(arr, columns) {
     if ((!columns || (columns && !columns.length)) || 
     (!arr || (arr && !arr.length))) return null;
