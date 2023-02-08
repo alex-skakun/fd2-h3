@@ -10,7 +10,6 @@ data = [
   {name: 'Вода', count: 2, price: 5.5},
 ]
 
-
 function maxLength(j) {
   let maxLengthCount;
   for (let i = 0; i < data.length; i++) {
