@@ -84,7 +84,3 @@ function createTextTable(columns, data) {
 }
 
 console.log(createTextTable(columns, data));
-
-
-
-
