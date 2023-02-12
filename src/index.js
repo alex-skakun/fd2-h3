@@ -34,7 +34,7 @@ function getLegth(arrData, columns){
     columns.map(item => arrLeng.push(item.length));
     // сравниваем с длинной в основной таблице и перезаписываем если значения их превышает
     arrData.map( (item) => {
-        let i=0;
+        let i = 0;
         for (let key in item ) {
             // длинна Item
             let itemLeng =  item[key].toString().length;
@@ -148,6 +148,8 @@ function createTextTable(arr, columns) {
 }
  
 
-console.log( createTextTable(data, columns));
+console.log( createTextTable(data, columns));   
+// console.table( data );   
+ 
 
  
